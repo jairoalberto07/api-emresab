@@ -4,6 +4,7 @@ import api_emresab.model.Material;
 import api_emresab.repository.MaterialRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import javax.validation.Valid;
 
 import java.util.List;
 
@@ -38,15 +39,15 @@ public class MaterialController {
         return repository.findByTipoPolimero(tipo.toUpperCase());
     }
 
-    // 4. Guardar un nuevo lote de polímero
+   // 4. Guardar un nuevo lote de polímero con validación
     @PostMapping
-    public Material guardar(@RequestBody Material material) {
+    public Material guardar(@Valid @RequestBody Material material) {
         return repository.save(material);
     }
 
-    // 5. Actualizar los datos de un lote existente por ID
+    // 5. Actualizar los datos de un lote existente por ID con validación
     @PutMapping("/{id}")
-    public ResponseEntity<Material> actualizar(@PathVariable Long id, @RequestBody Material detalles) {
+    public ResponseEntity<Material> actualizar(@PathVariable Long id, @Valid @RequestBody Material detalles) {
         return repository.findById(id)
                 .map(materialExistente -> {
                     materialExistente.setTipoPolimero(detalles.getTipoPolimero());

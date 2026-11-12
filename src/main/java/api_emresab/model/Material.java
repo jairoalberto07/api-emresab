@@ -1,6 +1,9 @@
 package api_emresab.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,28 +14,28 @@ public class Material {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String tipoPolimero; // HDPE, PP, LDPE
+    @NotBlank(message = "El tipo de polímero es obligatorio (ej. HDPE, PP, LDPE)")
+    @Column(name = "tipo_polimero", nullable = false, length = 50)
+    private String tipoPolimero;
 
-    @Column(nullable = false)
+    @NotNull(message = "El peso en kilos es obligatorio")
+    @Positive(message = "El peso en kilos debe ser mayor a cero")
+    @Column(name = "peso_kilos", nullable = false)
     private Double pesoKilos;
 
-    private String origen; // Ej: Recolección Sincé
+    @NotBlank(message = "El origen o punto de acopio es obligatorio")
+    @Column(nullable = false, length = 100)
+    private String origen;
 
+    @Column(name = "fecha_registro")
     private LocalDateTime fechaRegistro;
 
-    public Material() {
+    @PrePersist
+    public void prePersist() {
         this.fechaRegistro = LocalDateTime.now();
     }
 
-    public Material(String tipoPolimero, Double pesoKilos, String origen) {
-        this.tipoPolimero = tipoPolimero;
-        this.pesoKilos = pesoKilos;
-        this.origen = origen;
-        this.fechaRegistro = LocalDateTime.now();
-    }
-
-    public Long getId() { return id; }
+     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public String getTipoPolimero() { return tipoPolimero; }
