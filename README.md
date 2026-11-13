@@ -1,122 +1,59 @@
-# ♻️ API REST - Gestión de Inventario de Polímeros (ERS-EMRESAB S.A.S)
+# ♻️ ERS-EMRESAB S.A.S - API REST de Gestión y Transformación de Polímeros
 
-![Java](https://img.shields.io/badge/Java-8-orange?style=flat-square&logo=openjdk)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7.18-brightgreen?style=flat-square&logo=springboot)
-![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?style=flat-square&logo=mysql)
-![Swagger](https://img.shields.io/badge/OpenAPI-Swagger%20UI-85EA2D?style=flat-square&logo=swagger)
+![Java](https://img.shields.io/badge/Java-1.8-blue.svg)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-2.7.18-brightgreen.svg)
+![MySQL](https://img.shields.io/badge/MySQL-Database-orange.svg)
+![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF.svg)
+![Swagger](https://img.shields.io/badge/Swagger-OpenAPI_3-85EA2D.svg)
 
-Backend empresarial desarrollado en Java con Spring Boot y MySQL para el registro, control, validación y trazabilidad de lotes de polímeros reciclables (**HDPE**, **PP**, **LDPE**) de **ERS-EMRESAB S.A.S**.
+## 📖 Descripción del Proyecto
+Sistema backend corporativo diseñado para **ERS-EMRESAB S.A.S**, orientado a la gestión de inventarios y trazabilidad en la industria de la economía circular. La API permite registrar el acopio de polímeros reciclables (HDPE, PP, LDPE) y gestionar su transformación industrial en postes agrícolas (madera plástica).
 
----
+El núcleo del sistema incluye un algoritmo contable tipo **FIFO (First In, First Out)**, el cual deduce automáticamente el material consumido del inventario global de forma transaccional, garantizando la integridad de los datos de manufactura.
 
 ## 🚀 Características Principales
-
-Operaciones CRUD completas: Creación, consulta general, búsqueda por identificador, actualización y eliminación de lotes de material.
-Filtrado por tipo de polímero: Búsqueda optimizada por categoría de plástico reciclable (`HDPE`, `PP`, `LDPE`).
-Validaciones de negocio (`Bean Validation`): Restricciones a nivel de entidad para impedir registros sin tipo de material, sin punto de acopio o con pesos negativos/en cero.
-Manejo global de excepciones (`@RestControllerAdvice`): Respuestas JSON estructuradas y legibles ante errores de validación (`HTTP 400 Bad Request`).
-Documentación interactiva (Swagger / OpenAPI 3): Interfaz gráfica integrada para probar todos los endpoints directamente desde el navegador.
-Trazabilidad automática:** Asignación automática de fecha y hora de ingreso (`@PrePersist`) al almacenar cada lote en MySQL.
-
----
+*   **Arquitectura Multicapa:** Separación estricta de responsabilidades (Controllers, Services, Repositories, DTOs).
+*   **Gestión de Inventario:** Entradas, salidas y cálculo dinámico de métricas de peso por tipo de polímero.
+*   **Módulo de Transformación Segura:** Algoritmo FIFO respaldado por la anotación `@Transactional` de Spring, previniendo saldos negativos en base de datos si ocurre una interrupción.
+*   **Manejo Global de Excepciones:** Uso de `@RestControllerAdvice` para interceptar errores de validación de negocio (`IllegalArgumentException`) y validaciones de DTOs (`@Valid`), retornando JSON estructurados (HTTP 400).
+*   **Documentación Interactiva:** Interfaz Swagger/OpenAPI integrada para pruebas de endpoints.
+*   **Integración Continua (CI):** Flujo de GitHub Actions automatizado con Maven para compilar y ejecutar pruebas unitarias en cada *push* a la rama principal.
 
 ## 🛠️ Stack Tecnológico
+**Backend:**
+*   **Lenguaje:** Java 8
+*   **Framework:** Spring Boot 2.7.18
+*   **Persistencia:** Spring Data JPA (Hibernate)
+*   **Base de Datos:** MySQL
+*   **Testing:** JUnit 5, Mockito
+*   **Gestor de Dependencias:** Maven
+*   **IDE:** Apache NetBeans
 
-Lenguaje: Java 8 (JDK 1.8)
-Framework: Spring Boot 2.7.18
-Módulos Spring: Spring Web, Spring Data JPA, Spring Boot Validation
-ORM / Persistencia: Hibernate
-Base de Datos: MySQL (`emresab_db`)
-Documentación API: SpringDoc OpenAPI UI (`1.7.0`)
-Gestor de Dependencias: Maven
+**Frontend Integrado (Panel de Control):**
+*   HTML5, Vanilla JavaScript (Fetch API), Bootstrap 5.
 
----
+## ⚙️ Instalación y Despliegue Local
 
-## 📂 Arquitectura del Proyecto
-
-```text
-src/main/java/api_emresab/
-├── config/
-│   └── OpenApiConfig.java           # Configuración de portada y metadatos de Swagger UI
-├── controller/
-│   └── MaterialController.java      # Endpoints REST y documentación @Operation / @Tag
-├── exception/
-│   └── GlobalExceptionHandler.java  # Captura centralizada de errores de validación
-├── model/
-│   └── Material.java                # Entidad JPA con restricciones @NotBlank y @Positive
-├── repository/
-│   └── MaterialRepository.java      # Interfaz JpaRepository y consultas personalizadas
-└── ApiApplication.java              # Clase principal de arranque Spring Boot
-```
-
----
-
-## 📌 Endpoints de la API REST
-
-| Método | Endpoint | Descripción | Código de Respuesta |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/materiales` | Obtiene el listado completo de lotes registrados | `200 OK` |
-| `GET` | `/api/materiales/{id}` | Consulta un lote específico por su ID | `200 OK` / `404 Not Found` |
-| `GET` | `/api/materiales/buscar?tipo=HDPE` | Filtra los lotes por tipo de polímero | `200 OK` |
-| `POST` | `/api/materiales` | Valida y registra un nuevo lote en MySQL | `200 OK` / `400 Bad Request` |
-| `PUT` | `/api/materiales/{id}` | Actualiza los datos de un lote existente | `200 OK` / `400` / `404` |
-| `DELETE` | `/api/materiales/{id}` | Elimina un registro del inventario por ID | `204 No Content` / `404` |
-
-### Ejemplo de Cuerpo de Petición (`POST` / `PUT`)
-
-```json
-{
-  "tipoPolimero": "HDPE",
-  "pesoKilos": 250.5,
-  "origen": "Acopio Sincé Centro"
-}
-```
-
-### Ejemplo de Respuesta ante Error de Validación (`400 Bad Request`)
-
-```json
-{
-  "pesoKilos": "El peso en kilos debe ser mayor a cero",
-  "tipoPolimero": "El tipo de polímero es obligatorio (ej. HDPE, PP, LDPE)",
-  "origen": "El origen o punto de acopio es obligatorio"
-}
-```
-
----
-
-## 📖 Documentación Interactiva (Swagger UI)
-
-Con el servidor en ejecución, accede desde cualquier navegador a la interfaz de pruebas interactiva:
-
-Swagger UI: `http://localhost:8080/swagger-ui.html`
-Especificación OpenAPI (JSON):** `http://localhost:8080/v3/api-docs`
-
----
-
-## ⚙️ Configuración e Instalación Local
-
-1. Clonar el repositorio:
+1. **Clonar el repositorio:**
    ```bash
    git clone [https://github.com/jairoalberto07/api-emresab.git](https://github.com/jairoalberto07/api-emresab.git)
    cd api-emresab
-   ```
+   Configurar la Base de Datos:
+2. Crear una base de datos en MySQL llamada emresab_db. Hibernate generará las tablas materiales y produccion_postes automáticamente.
+Configurar credenciales en src/main/resources/application.properties
+spring.datasource.url=jdbc:mysql://localhost:3306/emresab_db
+spring.datasource.username=tu_usuario
+spring.datasource.password=tu_contraseña
+spring.jpa.hibernate.ddl-auto=update
 
-2. Crear la base de datos en MySQL:
-   ```sql
-   CREATE DATABASE emresab_db;
-   ```
+3. Compilar y Ejecutar:
+   mvn clean install
+mvn spring-boot:run
+4. Acceder a la Documentación (Swagger):
+Navegar a: http://localhost:8080/swagger-ui.html
+Pruebas Unitarias
 
-3. Configurar la conexión en `src/main/resources/application.properties`:
-   ```properties
-   spring.datasource.url=jdbc:mysql://localhost:3306/emresab_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-   spring.datasource.username=root
-   spring.datasource.password=TU_CONTRASEÑA
-   spring.jpa.hibernate.ddl-auto=update
-   spring.jpa.show-sql=true
-   ```
+El proyecto cuenta con cobertura de pruebas en la capa de servicios (MaterialServiceTest y ProduccionPosteServiceTest), utilizando Mockito para aislar la base de datos. Se validan escenarios de éxito (normalización de datos, cálculo de totales) y reglas de negocio críticas (rechazo de producción por inventario insuficiente).
 
-4. Compilar y ejecutar la aplicación:
-   Desde NetBeans ejecutando `ApiApplication.java` (`Shift + F6`) o mediante Maven en consola:
-   ```bash
-   mvn spring-boot:run
-   ```
+Para ejecutar los tests manualmente:
+mvn test
