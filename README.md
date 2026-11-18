@@ -37,4 +37,27 @@ El núcleo del sistema incluye un algoritmo contable tipo **FIFO (First In, Firs
 1. **Clonar el repositorio:**
    ```bash
    git clone [https://github.com/jairoalberto07/api-emresab.git](https://github.com/jairoalberto07/api-emresab.git)
+<<<<<<< HEAD
    cd api-emresab
+=======
+   cd api-emresab
+   Configurar la Base de Datos:
+2. Crear una base de datos en MySQL llamada emresab_db. Hibernate generará las tablas materiales y produccion_postes automáticamente.
+Configurar credenciales en src/main/resources/application.properties
+spring.datasource.url=jdbc:mysql://localhost:3306/emresab_db
+spring.datasource.username=tu_usuario
+spring.datasource.password=tu_contraseña
+spring.jpa.hibernate.ddl-auto=update
+
+3. Compilar y Ejecutar:
+   mvn clean install
+mvn spring-boot:run
+4. Acceder a la Documentación (Swagger):
+Navegar a: http://localhost:8080/swagger-ui.html
+Pruebas Unitarias
+
+El proyecto cuenta con cobertura de pruebas en la capa de servicios (MaterialServiceTest y ProduccionPosteServiceTest), utilizando Mockito para aislar la base de datos. Se validan escenarios de éxito (normalización de datos, cálculo de totales) y reglas de negocio críticas (rechazo de producción por inventario insuficiente).
+
+Para ejecutar los tests manualmente:
+mvn test
+>>>>>>> 7533964a3356bc5a7aa08531caad49b8aad43cbb
